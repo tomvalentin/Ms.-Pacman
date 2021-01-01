@@ -50,7 +50,7 @@ public class Executor
 		
 		//run multiple games in batch mode - good for testing.
 		int numTrials=10;
-//		exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
+		exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
 		 
 		
 		/*
