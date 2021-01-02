@@ -6,76 +6,124 @@ import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 import pacman.game.Constants;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class informationGain {
 
-    public static double expectedInfo(DataTuple[] dataset) {
+    public static Attribute attributeSelection(ArrayList<ProcessedDataTuple> dataset, ArrayList<Attribute> attributeList) {
+
+        double currentBest = -Double.MAX_VALUE;
+        Attribute bestCandidate = attributeList.get(0);
+
+        double expectedInfo = expectedInfo(dataset);
+
+        for(Attribute attribute: attributeList) {
+
+            double currentInfo = calculateInfoOfOneAttribute(dataset, attribute);
+
+            double currentGain = expectedInfo - currentInfo;
+
+            if(currentGain > currentBest) {
+                currentBest = currentGain;
+                bestCandidate = attribute;
+            }
+
+        }
+
+        return bestCandidate;
+
+    }
+
+    public static double expectedInfo(ArrayList<ProcessedDataTuple> dataset) {
         int nbrOfNEUTRAL = 0;
         int nbrOfUP = 0;
         int nbrOfDOWN = 0;
         int nbrOfLEFT = 0;
         int nbrOfRIGHT = 0;
 
-        int totalNbrOfTuples = dataset.length;
+        int totalNbrOfTuples = dataset.size();
 
-        for(DataTuple tuple : dataset) {
+        for(ProcessedDataTuple tuple : dataset) {
 
-            if(tuple.DirectionChosen == Constants.MOVE.NEUTRAL ) {
+            if (tuple.getMove() == Constants.MOVE.NEUTRAL) {
                 nbrOfNEUTRAL++;
 
-            } else if (tuple.DirectionChosen == Constants.MOVE.UP) {
+            } else if (tuple.getMove() == Constants.MOVE.UP) {
                 nbrOfUP++;
 
-            } else if (tuple.DirectionChosen == Constants.MOVE.DOWN) {
+            } else if (tuple.getMove() == Constants.MOVE.DOWN) {
                 nbrOfDOWN++;
 
-            } else if (tuple.DirectionChosen == Constants.MOVE.LEFT) {
+            } else if (tuple.getMove() == Constants.MOVE.LEFT) {
                 nbrOfLEFT++;
 
-            } else if (tuple.DirectionChosen == Constants.MOVE.RIGHT) {
+            } else if (tuple.getMove() == Constants.MOVE.RIGHT) {
                 nbrOfRIGHT++;
 
             }
 
         }
 
+        int[] values;
 
-      int[] values = new int[5];
+        if(nbrOfNEUTRAL == 0) {
 
-      values[0] = nbrOfNEUTRAL;
-      values[1] = nbrOfUP;
-      values[2] = nbrOfDOWN;
-      values[3] = nbrOfLEFT;
-      values[4] = nbrOfRIGHT;
+            values = new int[4];
+
+            values[0] = nbrOfUP;
+            values[1] = nbrOfDOWN;
+            values[2] = nbrOfLEFT;
+            values[3] = nbrOfRIGHT;
+
+        } else {
+
+            values = new int[5];
+
+            values[0] = nbrOfNEUTRAL;
+            values[1] = nbrOfUP;
+            values[2] = nbrOfDOWN;
+            values[3] = nbrOfLEFT;
+            values[4] = nbrOfRIGHT;
+
+        }
+
+
 
       double info = calculateInfo(values, totalNbrOfTuples);
-
 
       return info;
 
     }
 
-    public static double calculateGain(ProcessedDataTuple[] dataset) {
 
+    public static double calculateInfoOfOneAttribute(ArrayList<ProcessedDataTuple> dataset, Attribute attribute) {
 
+        HashMap<Object, ArrayList<ProcessedDataTuple>> splitDataset = new HashMap<>();
 
+        for(ProcessedDataTuple tuple: dataset) {
 
+            Object value = tuple.getAttributeValue(attribute);
 
+            if(!splitDataset.containsKey(value)) {
+                splitDataset.put(value, new ArrayList<ProcessedDataTuple>());
+            }
 
-
-    }
-
-    public Attribute attributeSelection(ProcessedDataTuple[] dataset) {
-
-        for(ProcessedDataTuple tuple: dataset ) {
-
-
+            splitDataset.get(value).add(tuple);
 
         }
 
-    }
+        double attributeInfo = 0;
 
+        for(Map.Entry<Object, ArrayList<ProcessedDataTuple>> entry: splitDataset.entrySet()) {
+            attributeInfo += ((double)entry.getValue().size()/(double)dataset.size()) * expectedInfo(entry.getValue());
+        }
+
+        return attributeInfo;
+
+    }
 
 
     public static double calculateInfo(int[] values, int totalNbr) {
@@ -83,6 +131,7 @@ public class informationGain {
         double totalInfo = 0;
 
         for(int x : values) {
+
             double probability = calculateProbability(x, totalNbr);
             double expectedX = -probability*log2(probability);
 
@@ -104,12 +153,12 @@ public class informationGain {
     }
 
 
-    public static void main (String[] args) {
-
-        DataTuple[] dataset = DataSaverLoader.LoadPacManData();
-
-        System.out.println(expectedInfo(dataset));
-
-    }
+//    public static void main (String[] args) {
+//
+//        DataTuple[] dataset = DataSaverLoader.LoadPacManData();
+//
+//        System.out.println(expectedInfo(dataset));
+//
+//    }
 
 }

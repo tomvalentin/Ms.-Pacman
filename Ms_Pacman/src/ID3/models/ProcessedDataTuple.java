@@ -10,8 +10,6 @@ public class ProcessedDataTuple {
 
     private Constants.MOVE move;
 
-
-
     HashMap<Attribute, Object> values = new HashMap<>();
 
     public Object getAttributeValue(Attribute attribute) {
