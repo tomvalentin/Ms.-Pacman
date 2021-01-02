@@ -1,5 +1,7 @@
 package ID3.informationGain;
 
+import ID3.constants.Attribute;
+import ID3.models.ProcessedDataTuple;
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 import pacman.game.Constants;
@@ -54,7 +56,23 @@ public class informationGain {
 
     }
 
-    public static void calculateGain() {
+    public static double calculateGain(ProcessedDataTuple[] dataset) {
+
+
+
+
+
+
+
+    }
+
+    public Attribute attributeSelection(ProcessedDataTuple[] dataset) {
+
+        for(ProcessedDataTuple tuple: dataset ) {
+
+
+
+        }
 
     }
 
