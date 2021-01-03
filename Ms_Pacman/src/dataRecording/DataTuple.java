@@ -9,7 +9,7 @@ import pacman.game.Game;
 public class DataTuple {
 
 	public enum DiscreteTag {
-		VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH, NONE;
+		VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH, NONE, TRUE, FALSE;	//added true and false
 
 		public static DiscreteTag DiscretizeDouble(double aux) {
 			if (aux < 0.1)

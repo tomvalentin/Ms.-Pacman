@@ -1,9 +1,9 @@
 package ID3.models;
 
 import ID3.constants.Attribute;
-import ID3.constants.Direction;
 import ID3.constants.NodeType;
 import dataRecording.DataTuple;
+import pacman.game.Constants;
 
 import java.util.ArrayList;
 
@@ -15,19 +15,19 @@ import java.util.ArrayList;
  */
 public class Node {
     ArrayList<Node> children;
-    Node parent;
+    //Node parent;
     NodeType type;
-    Direction direction;
+    Constants.MOVE direction;
     Attribute attribute;
     DataTuple.DiscreteTag branchValue;       //the actual value for the branch to the node.
-    Boolean root = false;
+    //Boolean root = false;
+    int index;
 
-    public Node(Node parent, NodeType type) {
-        if(parent == null)
-            root = true;
-        else
-            this.parent = parent;
-
+    public Node(NodeType type) {
+//        if(parent == null)
+//            root = true;
+//        else
+//            this.parent = parent;
         this.type = type;
     }
 
@@ -47,11 +47,11 @@ public class Node {
         this.type = type;
     }
 
-    public Direction getDirection() {
+    public Constants.MOVE getDirection() {
         return direction;
     }
 
-    public void setDirection(Direction direction) {
+    public void setDirection(Constants.MOVE direction) {
         this.direction = direction;
     }
 
@@ -67,7 +67,15 @@ public class Node {
         return branchValue;
     }
 
-    public boolean isRoot(){
-        return root;
+//    public boolean isRoot(){
+//        return root;
+//    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 }
