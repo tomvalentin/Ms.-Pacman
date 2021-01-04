@@ -40,6 +40,8 @@ public class AttributeValueMap {
         attributeValueMap.put(Attribute.DIRECTIONOFCLOSESTGHOST, temp);
 
 
+
+
         return attributeValueMap;
 
     }

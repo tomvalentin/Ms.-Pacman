@@ -1,6 +1,7 @@
 package pacman.controllers;
 
 import ID3.Utils.DataProcessorUtil;
+import ID3.Utils.PrintUtil;
 import ID3.Utils.TreeAccuracy;
 import ID3.Utils.TreeUtil;
 import ID3.constants.Attribute;
@@ -39,6 +40,9 @@ public class AIController extends Controller<Constants.MOVE> {
         decisionTreeStart = treeUtil.generateDecisionTree(temp, attributeList);
         //test the accuracy of the generated tree with 20% of the generated data
         System.out.println(new TreeAccuracy().testAccuracy(decisionTreeStart, allData[1]));
+
+        //Print a graphical representation of the tree
+        //PrintUtil.printTree(decisionTreeStart, 0);
     }
 
     public Constants.MOVE getMove(Game game, long timeDue) {
