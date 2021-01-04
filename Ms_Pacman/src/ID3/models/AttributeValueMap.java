@@ -26,6 +26,9 @@ public class AttributeValueMap {
         temp.add(DataTuple.DiscreteTag.VERY_HIGH);
 
         attributeValueMap.put(Attribute.DISTANCETOCLOSESTGHOST, temp);
+        attributeValueMap.put(Attribute.PILLSLEFT, temp);
+        attributeValueMap.put(Attribute.POWERPILLSLEFT, temp);
+        attributeValueMap.put(Attribute.LIVESLEFT, temp);
 
         temp = new ArrayList<>();
         temp.add(Constants.MOVE.NEUTRAL);

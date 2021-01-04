@@ -159,4 +159,28 @@ public class TreeUtil {
         }
 
     }
+
+    public Constants.MOVE findMoveInTree(Node decisionTreeStart,  HashMap<Attribute, Object> currentAttributeValues){
+        //Traversing the tree with the root as the starting point:
+        Node currentNode = decisionTreeStart;
+
+        while (true) {
+
+            if (currentNode.getType() == NodeType.LEAF) {
+                return currentNode.getDirection();
+            }
+
+            //Loop through the branches to find the relevant one to our current game state
+            ArrayList<Branch> currentBranches = currentNode.getBranches();
+
+            for (Branch branch : currentBranches) {
+                if (branch.getValue() == currentAttributeValues.get(currentNode.getAttribute())) {
+
+                    currentNode = branch.getChild();
+                    break;
+                }
+            }
+        }
+    }
+    
 }

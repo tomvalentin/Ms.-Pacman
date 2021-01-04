@@ -1,5 +1,7 @@
 package pacman.controllers;
 
+import ID3.Utils.DataProcessorUtil;
+import ID3.Utils.TreeAccuracy;
 import ID3.Utils.TreeUtil;
 import ID3.constants.Attribute;
 import ID3.constants.NodeType;
@@ -16,8 +18,10 @@ import java.util.HashMap;
 
 public class AIController extends Controller<Constants.MOVE> {
     private Node decisionTreeStart;
+    private DataProcessorUtil dataProcessorUtil = new DataProcessorUtil();
+    private TreeUtil treeUtil = new TreeUtil();
 
-    private DataTuple[] trainingData = DataSaverLoader.LoadPacManData();
+
 
     public AIController() {
 
@@ -27,10 +31,14 @@ public class AIController extends Controller<Constants.MOVE> {
             attributeList.add(attribute);
         }
 
-        ArrayList<ProcessedDataTuple> temp = processTuples();
+        //generate data from recorded session
+        ArrayList<ProcessedDataTuple>[] allData = dataProcessorUtil.generateData();
 
-        decisionTreeStart = new TreeUtil().generateDecisionTree(temp, attributeList);
+        ArrayList<ProcessedDataTuple> temp = allData[0]; //training data 80% of generated data
 
+        decisionTreeStart = treeUtil.generateDecisionTree(temp, attributeList);
+        //test the accuracy of the generated tree with 20% of the generated data
+        System.out.println(new TreeAccuracy().testAccuracy(decisionTreeStart, allData[1]));
     }
 
     public Constants.MOVE getMove(Game game, long timeDue) {
@@ -75,79 +83,18 @@ public class AIController extends Controller<Constants.MOVE> {
             currentAttributeValues.put(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(sueDist));
 
         }
+        currentAttributeValues.put(Attribute.PILLSLEFT,DataTuple.DiscreteTag.DiscretizeDouble(game.getNumberOfActivePills()));
+        currentAttributeValues.put(Attribute.POWERPILLSLEFT,DataTuple.DiscreteTag.DiscretizeDouble(game.getNumberOfActivePowerPills()));
+        currentAttributeValues.put(Attribute.LIVESLEFT,DataTuple.DiscreteTag.DiscretizeDouble(game.getPacmanNumberOfLivesRemaining()));
 
-        //Traversing the tree with the root as the starting point:
-        Node currentNode = decisionTreeStart;
-
-        while (true) {
-
-            if (currentNode.getType() == NodeType.LEAF) {
-                return currentNode.getDirection();
-            }
-
-            //Loop through the branches to find the relevant one to our current game state
-            ArrayList<Branch> currentBranches = currentNode.getBranches();
-
-            for (Branch branch : currentBranches) {
-                if (branch.getValue() == currentAttributeValues.get(currentNode.getAttribute())) {
-
-                    currentNode = branch.getChild();
-                    break;
-                }
-            }
-        }
+        //traverse and return the move found from decision tree
+        return treeUtil.findMoveInTree(decisionTreeStart, currentAttributeValues);
 
     }
 
     //For testing
     public static void main(String[] args) {
         AIController ai = new AIController();
-
-    }
-
-    //Could be moved?
-    public ArrayList<ProcessedDataTuple> processTuples() {
-
-        ArrayList<ProcessedDataTuple> processedDataTuples = new ArrayList<>();
-
-        for (int i = 0; i < trainingData.length; i++) {
-
-            ProcessedDataTuple tempTuple = new ProcessedDataTuple();
-
-            tempTuple.setMove(trainingData[i].DirectionChosen);
-
-            /**
-             * Adding direction and closest edible to processed Datatuple hashmap
-             */
-            if (trainingData[i].blinkyDist < trainingData[i].inkyDist && trainingData[i].blinkyDist < trainingData[i].pinkyDist && trainingData[i].blinkyDist < trainingData[i].sueDist) {
-                tempTuple.setAttributeValue(Attribute.DIRECTIONOFCLOSESTGHOST, trainingData[i].blinkyDir);
-                tempTuple.setAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE, trainingData[i].isBlinkyEdible);
-                tempTuple.setAttributeValue(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(trainingData[i].blinkyDist));
-            } else if (trainingData[i].inkyDist < trainingData[i].blinkyDist && trainingData[i].inkyDist < trainingData[i].pinkyDist && trainingData[i].inkyDist < trainingData[i].sueDist) {
-                tempTuple.setAttributeValue(Attribute.DIRECTIONOFCLOSESTGHOST, trainingData[i].inkyDir);
-                tempTuple.setAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE, trainingData[i].isInkyEdible);
-                tempTuple.setAttributeValue(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(trainingData[i].inkyDist));
-
-            } else if (trainingData[i].pinkyDist < trainingData[i].blinkyDist && trainingData[i].pinkyDist < trainingData[i].inkyDist && trainingData[i].pinkyDist < trainingData[i].sueDist) {
-                tempTuple.setAttributeValue(Attribute.DIRECTIONOFCLOSESTGHOST, trainingData[i].pinkyDir);
-                tempTuple.setAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE, trainingData[i].isPinkyEdible);
-                tempTuple.setAttributeValue(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(trainingData[i].pinkyDist));
-
-            } else {
-                tempTuple.setAttributeValue(Attribute.DIRECTIONOFCLOSESTGHOST, trainingData[i].sueDir);
-                tempTuple.setAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE, trainingData[i].isSueEdible);
-                tempTuple.setAttributeValue(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(trainingData[i].sueDist));
-
-            }
-
-
-            processedDataTuples.add(tempTuple);
-
-
-        }
-
-        return processedDataTuples;
-
 
     }
 
