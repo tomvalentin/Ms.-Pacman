@@ -2,7 +2,6 @@ package ID3.constants;
 
 public enum Attribute {
 
-
     ISCLOSESESTGHOSTEDIBLE,
     DISTANCETOCLOSESTGHOST,
     DIRECTIONOFCLOSESTGHOST

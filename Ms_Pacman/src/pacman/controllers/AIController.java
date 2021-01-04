@@ -1,7 +1,10 @@
 package pacman.controllers;
 
+import ID3.Utils.TreeUtil;
 import ID3.constants.Attribute;
+import ID3.constants.NodeType;
 import ID3.informationGain.informationGain;
+import ID3.models.Node;
 import ID3.models.ProcessedDataTuple;
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
@@ -14,32 +17,57 @@ public class AIController {
 
     public AIController() {
 
-
-    }
-
-    public void test() {
-
-        ProcessedDataTuple[] processedTuples = processTuples();
-
-        ArrayList<ProcessedDataTuple> temp = new ArrayList<>(Arrays.asList(processedTuples));
-
-        ArrayList<Attribute> attributes = new ArrayList<>();
+        ArrayList<Attribute> attributeList = new ArrayList<>();
 
         for(Attribute attribute: Attribute.values())  {
+            attributeList.add(attribute);
+        }
 
-            attributes.add(attribute);
+        //ArrayList<ProcessedDataTuple> temp = new ArrayList<>(Arrays.asList(processTuples()));
+
+        ArrayList<ProcessedDataTuple> temp = processTuples();
+
+        TreeUtil tree = new TreeUtil();
+
+        ArrayList<Node> list = tree.generateDecisionTree(temp, attributeList);
+
+
+        for(Node node: list) {
+
+            if(node.getType() == NodeType.LEAF) {
+                System.out.println(node.getDirection());
+
+            }
+
 
         }
 
-        Attribute chosenAttribute = informationGain.attributeSelection(temp, attributes);
-
-        System.out.println("Chosen attribute " + chosenAttribute);
 
     }
 
-    public ProcessedDataTuple[] processTuples() {
+//    public void test() {
+//
+//        ProcessedDataTuple[] processedTuples = processTuples();
+//
+//        ArrayList<ProcessedDataTuple> temp = new ArrayList<>(Arrays.asList(processedTuples));
+//
+//        ArrayList<Attribute> attributes = new ArrayList<>();
+//
+//        for(Attribute attribute: Attribute.values())  {
+//
+//            attributes.add(attribute);
+//
+//        }
+//
+//        Attribute chosenAttribute = informationGain.attributeSelection(temp, attributes);
+//
+//        System.out.println("Chosen attribute " + chosenAttribute);
+//
+//    }
 
-        ProcessedDataTuple[] processedDataTuples = new ProcessedDataTuple[trainingData.length];
+    public ArrayList<ProcessedDataTuple> processTuples() {
+
+        ArrayList<ProcessedDataTuple> processedDataTuples = new ArrayList<>();
 
         for(int i = 0; i<trainingData.length; i++) {
 
@@ -72,11 +100,12 @@ public class AIController {
                 tempTuple.setAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE, trainingData[i].isSueEdible);
                 tempTuple.setAttributeValue(Attribute.DISTANCETOCLOSESTGHOST, DataTuple.DiscreteTag.DiscretizeDouble(trainingData[i].sueDist));
 
-
             }
 
-            processedDataTuples[i] = tempTuple;
+            if(tempTuple.getAttributeValue(Attribute.DIRECTIONOFCLOSESTGHOST) != null || tempTuple.getAttributeValue(Attribute.ISCLOSESESTGHOSTEDIBLE) != null || tempTuple.getAttributeValue(Attribute.DISTANCETOCLOSESTGHOST) != null) {
+                processedDataTuples.add(tempTuple);
 
+            }
 
         }
 
@@ -88,10 +117,6 @@ public class AIController {
     public static void main (String[] args) {
 
         AIController ai = new AIController();
-
-        ai.test();
-
-
 
     }
 
