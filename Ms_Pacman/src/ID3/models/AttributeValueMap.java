@@ -28,6 +28,7 @@ public class AttributeValueMap {
         attributeValueMap.put(Attribute.DISTANCETOCLOSESTGHOST, temp);
 
         temp = new ArrayList<>();
+        temp.add(Constants.MOVE.NEUTRAL);
         temp.add(Constants.MOVE.LEFT);
         temp.add(Constants.MOVE.RIGHT);
         temp.add(Constants.MOVE.UP);

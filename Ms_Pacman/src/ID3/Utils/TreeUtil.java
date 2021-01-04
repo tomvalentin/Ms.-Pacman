@@ -2,11 +2,11 @@ package ID3.Utils;
 
 import ID3.constants.Attribute;
 import ID3.constants.NodeType;
-import ID3.informationGain.informationGain;
+import ID3.informationGain.InformationGain;
 import ID3.models.AttributeValueMap;
+import ID3.models.Branch;
 import ID3.models.Node;
 import ID3.models.ProcessedDataTuple;
-import dataRecording.DataTuple;
 import pacman.game.Constants;
 
 import java.util.ArrayList;
@@ -17,58 +17,52 @@ import java.util.Map;
  * A tree is an Arraylist of nodes, this class constucts and trains the tree.
  */
 public class TreeUtil {
-    private ArrayList<Node> tree = new ArrayList<>();
     int nodeIndex = 0;
-    int iteration = 0;
-    private HashMap<Attribute, ArrayList<Object>> attributeValuesMap;
+    private HashMap<Attribute, ArrayList<Object>> attributeValuesMap;   //HashMap containing the keys: Attributes and their corresponding values
 
     public TreeUtil() {
         attributeValuesMap = AttributeValueMap.getAttributeValueMap();
 
     }
 
-    public ArrayList<Node> generateDecisionTree(ArrayList<ProcessedDataTuple> dataPartition, ArrayList<Attribute> attributeList) { //Not sure if we use DataTuple as the model for data?
-        //calculate information gain, take attribute and call recursively
-        recursion(dataPartition, attributeList);
-
-        return tree;
-    }
-
-    private Node recursion(ArrayList<ProcessedDataTuple> dataPartition, ArrayList<Attribute> startingAttributeList) {
+    /**
+     *
+     * Generates a decision tree from a training dataset and a list of relevant attributes
+     *
+     *
+     * @param dataPartition The dataset
+     * @param startingAttributeList The list of attributes
+     * @return The starting node of the tree. I.e the Root node
+     */
+    public Node generateDecisionTree(ArrayList<ProcessedDataTuple> dataPartition, ArrayList<Attribute> startingAttributeList) {
 
         ArrayList<Attribute> attributeList = (ArrayList) startingAttributeList.clone();
 
-        nodeIndex++;
+        nodeIndex++; //To check if root note.. necessary?
 
         Node n;
-
 
         if (sameClass(dataPartition)) {
             //Leaf Node with Move
             n = new Node(NodeType.LEAF);
             n.setDirection(dataPartition.get(0).getMove());
-            n.setIndex(nodeIndex++);
-            tree.add(n);
+            n.setIndex(nodeIndex++); //could be deleted
 
             return n;
-        } else if (attributeList.isEmpty() || dataPartition.isEmpty()) {
+        } else if (attributeList.isEmpty()) {
 
-            if (dataPartition.isEmpty()) {
-            }
             //Leaf Node with most occurring move
             n = new Node(NodeType.LEAF);
             n.setDirection(mostOccurringMove(dataPartition));
-
-            n.setIndex(nodeIndex++);
-            tree.add(n);
+            n.setIndex(nodeIndex++); //could be deleted
 
             return n;
         }
 
         //Node will be an attribute with children for all branch values
-        Attribute a = informationGain.attributeSelection(dataPartition, attributeList);
-        //System.out.println("Attribute: " + a + "chosen");
+        Attribute a = InformationGain.attributeSelection(dataPartition, attributeList);
 
+        //Delete this? Only NodeType == Leaf is used. Change to isLeaf?
         if (nodeIndex == 1) {
             n = new Node(NodeType.ROOT);
 
@@ -77,12 +71,14 @@ public class TreeUtil {
         }
 
         n.setAttribute(a);
-        ArrayList<Node> children = new ArrayList<>();
-        n.setChildren(children);
-        tree.add(n);
+
+        //Creates a list of branches which will contain the child nodes and which value was used
+        ArrayList<Branch> branches = new ArrayList<>();
+        n.setBranches(branches);
 
         attributeList.remove(a);
 
+        //HashMap needed to seperate the tuples based on their attribute values
         HashMap<Object, ArrayList<ProcessedDataTuple>> splitDataset = new HashMap<>();
 
         ArrayList<Object> attributeValues = attributeValuesMap.get(a);
@@ -93,29 +89,27 @@ public class TreeUtil {
 
 
         for (ProcessedDataTuple tuple : dataPartition) {
-
             Object value = tuple.getAttributeValue(a);
-
-//            if(!splitDataset.containsKey(value)) {
-//                splitDataset.put(value, new ArrayList<ProcessedDataTuple>());
-//            }
-
             splitDataset.get(value).add(tuple);
 
         }
 
-        System.out.println(splitDataset.keySet());
-
         for (Map.Entry<Object, ArrayList<ProcessedDataTuple>> entry : splitDataset.entrySet()) {
 
+            //If there are no tuples with the current value we add a branch and node to the current node with the most common direction in the previous dataset
             if (entry.getValue().isEmpty()) {
                 Node tempNode = new Node(NodeType.LEAF);
                 tempNode.setDirection(mostOccurringMove(dataPartition));
 
-                children.add(tempNode);
+                Branch tempBranch = new Branch(n, tempNode, entry.getKey());
+
+                branches.add(tempBranch);
 
             } else {
-                children.add(recursion(entry.getValue(), attributeList));
+                Node tempNode = generateDecisionTree(entry.getValue(), attributeList);
+                Branch tempBranch = new Branch(n, tempNode, entry.getKey());
+
+                branches.add(tempBranch);
 
             }
 
@@ -161,7 +155,7 @@ public class TreeUtil {
         else if (right > up && right > down && right > left)
             return Constants.MOVE.RIGHT;
         else {
-            return Constants.MOVE.NEUTRAL;
+            return Constants.MOVE.NEUTRAL;      //Needed since variables are sometimes equal
         }
 
     }

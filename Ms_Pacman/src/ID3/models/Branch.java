@@ -5,6 +5,12 @@ public class Branch {
     private Node child;
     private Object value;
 
+    public Branch(Node parent, Node child, Object value) {
+        this.parent = parent;
+        this.child = child;
+        this.value = value;
+    }
+
     public Node getParent() {
         return parent;
     }

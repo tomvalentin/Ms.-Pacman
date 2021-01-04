@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  */
 public class Node {
-    ArrayList<Node> children;
+    ArrayList<Branch> branches;
     //Node parent;
     NodeType type;
     Constants.MOVE direction;
@@ -31,12 +31,12 @@ public class Node {
         this.type = type;
     }
 
-    public ArrayList<Node> getChildren() {
-        return children;
+    public ArrayList<Branch> getBranches() {
+        return branches;
     }
 
-    public void setChildren(ArrayList<Node> children) {
-        this.children = children;
+    public void setBranches(ArrayList<Branch> branches) {
+        this.branches = branches;
     }
 
     public NodeType getType() {

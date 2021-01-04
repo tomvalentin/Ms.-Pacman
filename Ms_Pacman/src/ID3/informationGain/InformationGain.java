@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class informationGain {
+public class InformationGain {
 
     public static Attribute attributeSelection(ArrayList<ProcessedDataTuple> dataset, ArrayList<Attribute> attributeList) {
 
@@ -89,8 +89,6 @@ public class informationGain {
             values[4] = nbrOfRIGHT;
 
         }
-
-
 
       double info = calculateInfo(values, totalNbrOfTuples);
 
